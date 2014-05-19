@@ -22,7 +22,7 @@ from queue import *
 
 import atexit
 
-HOST, PORT = 'localhost', 9999
+HOST, PORT = '0.0.0.0', 9999
 MAGIC = b"258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
 
 connected = False

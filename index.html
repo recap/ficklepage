@@ -1,6 +1,6 @@
 <html>
 <head>
-<title>WebSocket Test</title>
+<title>Fickle Page</title>
 
 <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
 
@@ -32,7 +32,7 @@
         if(!ws) // if not connected, just display error
             appendMessage("SYS: WebSocket is not connected.");
         else
-            appendMessage("Serving page");
+            appendMessage("Serving page.");
         
         // now, if connected, try to send the data
         if(ws){
@@ -56,15 +56,14 @@
             
             appendMessage("SYS: WebSocket enabled: trying to connect...");
             
-            //var ws = new WebSocket("ws://hocalhost:9999");
-            //var ws = new WebSocket("ws://127.0.0.1:9999/websocket", ['soap', 'xmpp']);
-                
-            ws = new WebSocket("ws://127.0.0.1:9999/fickle", ['fickle']);
+            ws = new WebSocket("ws://elab.lab.uvalight.net:9999/fickle", ['fickle']);
             ws.onopen = function(){
 		var id = $("#inputID").val();
 
                 ws.send(id);
                 appendMessage("SYS: Connected.");
+		$("#serv").remove();
+		appendMessage("Page URL: "+window.location.host+":9998/"+id);
             };
             ws.onerror = function(error) {
                 appendMessage("SYS: WebSocket ERROR.");
@@ -74,7 +73,7 @@
                 var recv_msg = e.data;
                 appendMessage("Request: " + recv_msg);
 		if(recv_msg == "GET"){
-			servePage();	
+			servePage();
 		}
             };
             ws.onclose = function(){
@@ -98,7 +97,7 @@
 
 <p><input id="inputID" type="text" style="width:400;"></input></p>
 <p><textarea id="inputBox" type="text" style="width:600; height:480;"></textarea></p>
-<p><a href="javascript:start()">Serve</a></p>
+<p><a id="serv" href="javascript:start()">Serve</a></p>
 <p><textarea id="textBox" readonly
     style="resize:none; width:500; height:120;">
 </textarea></p>
