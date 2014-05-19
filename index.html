@@ -1,0 +1,107 @@
+<html>
+<head>
+<title>WebSocket Test</title>
+
+<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+
+<script type="text/javascript">
+    // init ws as null/false
+    var ws = false;
+    
+    // when document is loaded, run setup
+    $(document).ready(function(){
+        // set up inputBox to call sendMessage function
+        //$("#inputBox").keyup(function(e){
+        //    if(e.keyCode == 13) // enter
+        //        sendMessage();
+        //});
+        
+        // clear all text fields/boxes
+        $("#inputBox").val("<html>\n<h1>My Page</h1>\n<body>It works</body>\n</html>");
+        $("#textBox").val("");
+	$("#inputID").val("test131");
+    });
+    
+    // send message over the socket (if socket is ready)
+    function servePage(){
+        // append the message to the text box
+        var msg = $("#inputBox").val();
+        if(msg.length == 0) // if message is empty, just do nothing
+            return;
+        //$("#inputBox").val("")
+        if(!ws) // if not connected, just display error
+            appendMessage("SYS: WebSocket is not connected.");
+        else
+            appendMessage("Serving page");
+        
+        // now, if connected, try to send the data
+        if(ws){
+            ws.send(msg);
+        }
+    }
+    
+    // append a message to the text field
+    function appendMessage(msg){
+        var box = $("#textBox");
+        box.val(box.val() + msg + "\n");
+        box.scrollTop(box[0].scrollHeight);
+    }
+    
+    function start(){
+        if("WebSocket" in window){
+            if(ws){ // if websocket already exists, exit
+                appendMessage("SYS: WebSocket already connected.");
+                return;
+            }
+            
+            appendMessage("SYS: WebSocket enabled: trying to connect...");
+            
+            //var ws = new WebSocket("ws://hocalhost:9999");
+            //var ws = new WebSocket("ws://127.0.0.1:9999/websocket", ['soap', 'xmpp']);
+                
+            ws = new WebSocket("ws://127.0.0.1:9999/fickle", ['fickle']);
+            ws.onopen = function(){
+		var id = $("#inputID").val();
+
+                ws.send(id);
+                appendMessage("SYS: Connected.");
+            };
+            ws.onerror = function(error) {
+                appendMessage("SYS: WebSocket ERROR.");
+                //console.log('WebSocket Error ' + error);
+            };
+            ws.onmessage = function(e){
+                var recv_msg = e.data;
+                appendMessage("Request: " + recv_msg);
+		if(recv_msg == "GET"){
+			servePage();	
+		}
+            };
+            ws.onclose = function(){
+                appendMessage("SYS: WebSocket closed.");
+                ws = false;
+            }
+        }
+        
+        else {
+            appendMessage("SYS: WebSocket not supported.");
+        }
+    }
+</script>
+
+</head>
+
+<body style="text-align:center;">
+
+
+
+
+<p><input id="inputID" type="text" style="width:400;"></input></p>
+<p><textarea id="inputBox" type="text" style="width:600; height:480;"></textarea></p>
+<p><a href="javascript:start()">Serve</a></p>
+<p><textarea id="textBox" readonly
+    style="resize:none; width:500; height:120;">
+</textarea></p>
+
+</body>
+</html>
