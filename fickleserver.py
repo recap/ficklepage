@@ -83,7 +83,7 @@ class FickleServer(threading.Thread):
         q = Queue()
         o = Queue()
         servers = PageIndex()
-        servers.add_site(id.decode('utf-8'), (q, o))
+        servers.add_site(id.decode('utf-8'), (q, o, addr))
         print ("Added server at: "+str(addr))
         connected = True
 

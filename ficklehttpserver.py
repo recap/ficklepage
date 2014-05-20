@@ -87,14 +87,17 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
             key = path_parts[1]
 
             if servers.has_key(key):
-                (q, o) = servers.get_conn(key)
+                (q, o, addr) = servers.get_conn(key)
+
+                inject = "<p>This page was served from: "+str(addr[0])+"</p></body>"
                 q.put("GET")
                 mesg = o.get()
                 msm = str(mesg)
                 time.sleep(1)
                 if not msm == "400":
-                    print("HTML: "+msm)
-                    s.wfile.write(msm.encode('utf-8'))
+                    nmsm = msm.replace("</body>",inject)
+                    print("HTML: "+nmsm)
+                    s.wfile.write(nmsm.encode('utf-8'))
                 else:
                     s.wfile.write(default_page.encode('utf-8'))
             else:
