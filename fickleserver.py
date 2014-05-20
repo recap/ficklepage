@@ -56,6 +56,7 @@ class FickleServer(threading.Thread):
 
         # parse incoming data
         message = stream.readline().strip()
+        key = None
         while message:
             msg_list = message.split()
             if msg_list[0] == 'Sec-WebSocket-Key:':
@@ -65,64 +66,48 @@ class FickleServer(threading.Thread):
             #print(msg_list)
             message = stream.readline().strip()
 
+        if key:
+            accept = self.get_hash(key)
+            handshake = "HTTP/1.1 101 Switching Protocols\r\n"
+            handshake += "Upgrade: websocket\r\n"
+            handshake += "Connection: Upgrade\r\n"
+            handshake += "Sec-WebSocket-Accept: " + accept + "\r\n"
+            #handshake += "Sec-WebSocket-Protocol: chat, superchat\n"
+            handshake += "\r\n"
+            print(handshake)
+            client.sendall(handshake.encode())
 
-        accept = self.get_hash(key)
-        handshake = "HTTP/1.1 101 Switching Protocols\r\n"
-        handshake += "Upgrade: websocket\r\n"
-        handshake += "Connection: Upgrade\r\n"
-        handshake += "Sec-WebSocket-Accept: " + accept + "\r\n"
-        #handshake += "Sec-WebSocket-Protocol: chat, superchat\n"
-        handshake += "\r\n"
-        print(handshake)
-        client.sendall(handshake.encode())
-
-        id = self.read_data(client)
-        print ("ID: "+id.decode('utf-8'))
-
-
-        q = Queue()
-        o = Queue()
-        servers = PageIndex()
-        servers.add_site(id.decode('utf-8'), (q, o, addr))
-        print ("Added server at: "+str(addr))
-        connected = True
-
-        #q.put("GET")
-        while 1:
-            msg = q.get()
-
-            if msg == "GET":
-                try:
-                    self.send_data(client, msg)
-                    message = self.read_data(client)
-                    #print("Message: "+message.decode('utf-8'))
-                    o.put(message.decode('utf-8'))
-
-                except Exception:
-                    print ("Disconnected site: "+id.decode('utf-8'))
-                    connected = False
-                    o.put("400")
-                    break
-
-                if not connected:
-                     servers.remove_key(id.decode('utf-8'))
-                     break
+            id = self.read_data(client)
+            print ("ID: "+id.decode('utf-8'))
 
 
+            q = Queue()
+            o = Queue()
+            servers = PageIndex()
+            servers.add_site(id.decode('utf-8'), (q, o, addr))
+            print ("Added server at: "+str(addr))
+            connected = True
 
-        # receiver = self.Receiver(client)
-        # receiver.start()
-        #
-        # while True:
-        #     #print("\033[94m", end="")
-        #     message = input()
-        #     if not connected:
-        #         exit()
-        #     try:
-        #         self.send_data(client, message)
-        #     except Exception:
-        #         print("Can't send to client. The server will now quit.")
-        #         exit()
+            #q.put("GET")
+            while 1:
+                msg = q.get()
+
+                if msg == "GET":
+                    try:
+                        self.send_data(client, msg)
+                        message = self.read_data(client)
+                        #print("Message: "+message.decode('utf-8'))
+                        o.put(message.decode('utf-8'))
+
+                    except Exception:
+                        print ("Disconnected site: "+id.decode('utf-8'))
+                        connected = False
+                        o.put("400")
+                        break
+
+                    if not connected:
+                         servers.remove_key(id.decode('utf-8'))
+                         break
 
 
     def on_exit(self):
