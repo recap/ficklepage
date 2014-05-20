@@ -92,13 +92,22 @@ class FickleServer(threading.Thread):
             msg = q.get()
 
             if msg == "GET":
-                self.send_data(client, msg)
-                message = self.read_data(client)
-                if not connected:
-                     exit()
+                try:
+                    self.send_data(client, msg)
+                    message = self.read_data(client)
+                    #print("Message: "+message.decode('utf-8'))
+                    o.put(message.decode('utf-8'))
 
-                print("Message: "+message.decode('utf-8'))
-                o.put(message.decode('utf-8'))
+                except Exception:
+                    print ("Disconnected site: "+id.decode('utf-8'))
+                    connected = False
+                    o.put("400")
+                    break
+
+                if not connected:
+                     servers.remove_key(id.decode('utf-8'))
+                     break
+
 
 
         # receiver = self.Receiver(client)

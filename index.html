@@ -56,7 +56,8 @@
             
             appendMessage("SYS: WebSocket enabled: trying to connect...");
             
-            ws = new WebSocket("ws://elab.lab.uvalight.net:9999/fickle", ['fickle']);
+            //ws = new WebSocket("ws://elab.lab.uvalight.net:9999/fickle", ['fickle']);
+            ws = new WebSocket("ws://127.0.0.1:9999/fickle", ['fickle']);
             ws.onopen = function(){
 		var id = $("#inputID").val();
 

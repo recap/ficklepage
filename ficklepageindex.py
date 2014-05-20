@@ -52,3 +52,9 @@ class PageIndex(object):
             self.rlock.release()
 
             return ret
+
+        def remove_key(self, key):
+            self.rlock.acquire()
+            if key in self.servers.keys():
+                del self.servers[key]
+            self.rlock.release()

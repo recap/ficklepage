@@ -76,6 +76,7 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
         """Respond to a GET request."""
         #log.debug("Request "+s.path)
         servers = PageIndex()
+        default_page = "<html><h1>Oooops No Page Found</h1></html>"
 
         s.send_response(200)
         s.send_header("Content-type", "text/html")
@@ -91,16 +92,21 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
                 mesg = o.get()
                 msm = str(mesg)
                 time.sleep(1)
-                print("HTML: "+msm)
-                s.wfile.write(msm.encode('utf-8'))
-                #print("Got conn for key: "+str(key))
+                if not msm == "400":
+                    print("HTML: "+msm)
+                    s.wfile.write(msm.encode('utf-8'))
+                else:
+                    s.wfile.write(default_page.encode('utf-8'))
+            else:
+                s.wfile.write(default_page.encode('utf-8'))
+
 
         if s.path == "/":
             s.send_response(200)
             s.send_header("Content-type", "text/html")
             s.end_headers()
             s.wfile.write("<html><head><title>Fickle Page</title></head>")
-            s.wfile.write("<body><p>Default page</p>")
+            s.wfile.write("<body><p>Default Page</p>")
             s.wfile.write("</body></html>")
 
 
